@@ -34,10 +34,6 @@ The system therefore treats recovery as a **decision and optimization problem**,
 
 For every recovery opportunity, the system moves through a structured workflow:
 
-
-Replace it with:
-
-```markdown
 ```mermaid
 flowchart LR
     A[Revenue Risk] --> B[Incident Detection]
@@ -58,43 +54,27 @@ The system connects:
 
 # System Architecture
 
-```markdown
 ```mermaid
 flowchart TB
-    UI[React Frontend]
-    API[Express API]
+    UI[React Frontend] --> API[Express API]
 
-    INC[Incident Engine]
-    REV[Revenue Attribution]
-    OPT[Recovery Optimizer]
-    POL[Policy Engine]
-    EXE[Recovery Executor]
-    BAT[Batch Recovery]
-    AUD[Audit Logger]
+    API --> INC[Incident Engine]
+    API --> REV[Revenue Attribution]
+    API --> OPT[Recovery Optimizer]
+    API --> POL[Policy Engine]
+    API --> EXE[Recovery Executor]
+    API --> BAT[Batch Recovery]
+    API --> AUD[Audit Logger]
 
-    ML[Python ML Predictor]
-    RF[Random Forest Model]
+    OPT --> ML[Python ML Predictor]
+    ML --> RF[Random Forest Model]
 
-    DB[(MongoDB)]
-
-    UI --> API
-
-    API --> INC
-    API --> REV
-    API --> OPT
-    API --> POL
-    API --> EXE
-    API --> BAT
-    API --> AUD
-
-    OPT --> ML
-    ML --> RF
-
-    INC --> DB
+    INC --> DB[(MongoDB)]
     REV --> DB
     EXE --> DB
     BAT --> DB
     AUD --> DB
+```
 
 ---
 
