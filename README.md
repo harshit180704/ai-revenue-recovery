@@ -34,19 +34,20 @@ The system therefore treats recovery as a **decision and optimization problem**,
 
 For every recovery opportunity, the system moves through a structured workflow:
 
+
+Replace it with:
+
+```markdown
 ```mermaid
-flowchart TD
-    A[Revenue at Risk] --> B[Incident Detection]
+flowchart LR
+    A[Revenue Risk] --> B[Incident Detection]
     B --> C[Payment Evaluation]
-    C --> D[AI Recovery Prediction]
+    C --> D[AI Prediction]
     D --> E[Action Optimization]
-    E --> F[Policy Validation]
-    F -->|Approved| G[Recovery Execution]
-    F -->|Blocked| H[Record Decision]
-    G --> I[Recovery Outcome]
-    I --> J[Revenue Measurement]
-    H --> K[Audit Trail]
-    J --> K
+    E --> F[Policy Check]
+    F --> G[Recovery Execution]
+    G --> H[Revenue Measurement]
+    H --> I[Audit Trail]
 ```
 
 The system connects:
@@ -57,45 +58,43 @@ The system connects:
 
 # System Architecture
 
+```markdown
 ```mermaid
 flowchart TB
+    UI[React Frontend]
+    API[Express API]
 
-    UI[React + TypeScript Frontend]
-
-    API[Node.js + Express API]
-
-    INCIDENT[Incident Engine]
-    REVENUE[Revenue Attribution]
-    OPTIMIZER[Recovery Optimizer]
-    POLICY[Recovery Policy Engine]
-    EXECUTOR[Recovery Executor]
-    BATCH[Batch Recovery]
-    AUDIT[Audit Logger]
+    INC[Incident Engine]
+    REV[Revenue Attribution]
+    OPT[Recovery Optimizer]
+    POL[Policy Engine]
+    EXE[Recovery Executor]
+    BAT[Batch Recovery]
+    AUD[Audit Logger]
 
     ML[Python ML Predictor]
-    MODEL[Random Forest Model]
+    RF[Random Forest Model]
 
     DB[(MongoDB)]
 
     UI --> API
 
-    API --> INCIDENT
-    API --> REVENUE
-    API --> OPTIMIZER
-    API --> POLICY
-    API --> EXECUTOR
-    API --> BATCH
-    API --> AUDIT
+    API --> INC
+    API --> REV
+    API --> OPT
+    API --> POL
+    API --> EXE
+    API --> BAT
+    API --> AUD
 
-    OPTIMIZER --> ML
-    ML --> MODEL
+    OPT --> ML
+    ML --> RF
 
-    INCIDENT --> DB
-    REVENUE --> DB
-    EXECUTOR --> DB
-    BATCH --> DB
-    AUDIT --> DB
-```
+    INC --> DB
+    REV --> DB
+    EXE --> DB
+    BAT --> DB
+    AUD --> DB
 
 ---
 
