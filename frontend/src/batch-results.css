@@ -1,0 +1,412 @@
+
+/* =========================================
+   BATCH PAYMENT DECISION TABLE
+   ========================================= */
+
+.batch-payment-results {
+    margin-top: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.batch-payment-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 15px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.batch-payment-results-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.batch-payment-results-header span:first-child {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: #64748b;
+}
+
+.batch-payment-results-header strong {
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.batch-payment-count {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.batch-payment-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.batch-payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 0;
+    table-layout: fixed;
+    font-size: 10px;
+}
+
+.batch-payment-table th {
+    padding: 9px 7px;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: .08em;
+    color: #64748b;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.batch-payment-table td {
+    padding: 9px 7px;
+    color: #475569;
+    border-bottom: 1px solid #edf1f5;
+    vertical-align: top;
+}
+
+.batch-payment-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.batch-payment-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.batch-payment-id {
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.batch-payment-amount {
+    color: #0f172a !important;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.batch-action-badge,
+.batch-policy-badge,
+.batch-outcome-badge {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    min-height: 22px;
+    padding: 4px 7px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: .02em;
+    white-space: nowrap;
+}
+
+.batch-action-badge {
+    background: #f5f3ff;
+    color: #6d28d9;
+}
+
+.batch-policy-badge.approved {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.batch-policy-badge.blocked {
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.batch-outcome-badge.recovered {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.batch-outcome-badge.blocked {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.batch-outcome-badge.failed {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.batch-policy-reason {
+    max-width: 190px;
+    margin-top: 5px;
+    color: #94a3b8;
+    font-size: 9px;
+    line-height: 1.35;
+}
+
+.batch-recovered-amount {
+    margin-top: 5px;
+    color: #059669;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   BATCH INTELLIGENCE BREAKDOWN
+   ========================================= */
+
+.batch-intelligence-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.batch-intelligence-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 12px;
+}
+
+.batch-intelligence-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: .08em;
+}
+
+.batch-intelligence-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 11px;
+}
+
+.batch-intelligence-row {
+    min-width: 0;
+}
+
+.batch-intelligence-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: #334155;
+    font-size: 10px;
+}
+
+.batch-intelligence-row-top span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.batch-intelligence-row-top strong {
+    flex: 0 0 auto;
+    color: #0f172a;
+    font-size: 10px;
+}
+
+.batch-intelligence-bar {
+    height: 4px;
+    margin-top: 5px;
+    border-radius: 999px;
+    background: #eef2f7;
+    overflow: hidden;
+}
+
+.batch-intelligence-bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: #7c3aed;
+}
+
+.batch-blocked-reason-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #64748b;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.batch-blocked-reason-row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.batch-blocked-reason-row span {
+    min-width: 0;
+}
+
+.batch-blocked-reason-row strong {
+    flex: 0 0 auto;
+    min-width: 18px;
+    text-align: right;
+    color: #be123c;
+    font-size: 10px;
+}
+
+.batch-intelligence-empty {
+    margin-top: 11px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.batch-payment-table th:nth-child(1),
+.batch-payment-table td:nth-child(1) {
+    width: 20%;
+}
+
+.batch-payment-table th:nth-child(2),
+.batch-payment-table td:nth-child(2) {
+    width: 12%;
+}
+
+.batch-payment-table th:nth-child(3),
+.batch-payment-table td:nth-child(3) {
+    width: 17%;
+}
+
+.batch-payment-table th:nth-child(4),
+.batch-payment-table td:nth-child(4) {
+    width: 10%;
+}
+
+.batch-payment-table th:nth-child(5),
+.batch-payment-table td:nth-child(5) {
+    width: 12%;
+}
+
+.batch-payment-table th:nth-child(6),
+.batch-payment-table td:nth-child(6) {
+    width: 11%;
+}
+
+.batch-payment-table th:nth-child(7),
+.batch-payment-table td:nth-child(7) {
+    width: 18%;
+}
+
+.batch-payment-id {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.batch-payment-table td:nth-child(4),
+.batch-payment-table td:nth-child(5) {
+    white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+    .batch-intelligence-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .batch-payment-table {
+        font-size: 9px;
+    }
+
+    .batch-payment-table th,
+    .batch-payment-table td {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+/* =========================================
+   AI DECISION TRACE
+   ========================================= */
+.decision-trace {
+    margin-top: 14px;
+    padding: 13px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.decision-trace-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #475569;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.decision-trace-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.decision-trace-grid > div {
+    min-width: 0;
+    padding: 8px 9px;
+    border: 1px solid #e8edf3;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.decision-trace-grid span {
+    display: block;
+    margin-bottom: 3px;
+    color: #94a3b8;
+    font-size: 8px;
+    font-weight: 750;
+    letter-spacing: .08em;
+}
+
+.decision-trace-grid strong {
+    display: block;
+    overflow: hidden;
+    color: #0f172a;
+    font-size: 11px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.decision-trace p {
+    margin: 11px 0 0;
+    color: #334155;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.decision-trace small {
+    display: block;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+    .decision-trace-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
