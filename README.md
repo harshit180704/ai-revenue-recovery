@@ -1,380 +1,375 @@
 # AI Revenue Recovery
 
-> An AI-powered revenue recovery orchestration system for detecting revenue at risk, selecting the right recovery intervention, enforcing safety policies, executing approved actions, and measuring recovered revenue.
+> **Razorpay Buildathon 2026 — Track 3: AI Revenue Recovery**
 
-## Overview
+**An AI-powered revenue recovery agent that identifies revenue at risk, determines the best recovery intervention for each failed payment, enforces hard safety policies, executes approved recovery actions, and records the complete decision trail.**
 
-Revenue loss rarely happens in a single step.
+## The idea
 
-A payment fails, a payment method experiences degradation, or repeated retries stop being effective. The challenge is not simply detecting the failure — it is deciding **what should happen next, whether it is safe to act, and whether the intervention actually recovered revenue**.
+Payment failure is not the end of the recovery problem.
 
-AI Revenue Recovery acts as an intelligence and orchestration layer around failed payment recovery.
+The difficult question is:
 
-It evaluates recovery opportunities, compares possible interventions using machine-learning predictions, applies bounded recovery policies, executes approved actions, and records the complete decision and outcome.
+> **"What should we do next to maximize recoverable revenue without blindly retrying everything?"**
 
----
+AI Revenue Recovery treats payment recovery as a **value-driven decision problem** rather than a fixed retry rule.
 
-## The Problem
+For every failed payment, the system:
 
-Traditional recovery systems can rely heavily on fixed retry rules.
-
-This creates several problems:
-
-- Not every failed payment should be retried immediately.
-- Different recovery actions can have different success probabilities.
-- Repeated retries can waste recovery attempts.
-- High-value transactions may require stricter controls.
-- A recommendation without an outcome does not show whether revenue was actually recovered.
-
-The system therefore treats recovery as a **decision and optimization problem**, rather than simply a retry operation.
+**Detects → Attributes → Predicts → Optimizes → Controls → Executes → Measures → Audits**
 
 ---
 
-## The Solution
+## Why this matters
 
-For every recovery opportunity, the system moves through a structured workflow:
+A fixed retry strategy treats every failed payment similarly.
 
-```mermaid
-flowchart LR
-    A[Revenue Risk] --> B[Incident Detection]
-    B --> C[Payment Evaluation]
-    C --> D[AI Prediction]
-    D --> E[Action Optimization]
-    E --> F[Policy Check]
-    F --> G[Recovery Execution]
-    G --> H[Revenue Measurement]
-    H --> I[Audit Trail]
-```
+But a ₹500 failed payment and a ₹40,000 failed payment should not necessarily receive the same intervention.
 
-The system connects:
+Likewise:
 
-**Detection → Prediction → Optimization → Policy → Execution → Measurement → Audit**
+* an immediate retry may be appropriate for one failure,
+* a delayed retry may be better for another,
+* an alternate payment method may have higher recovery potential,
+* and some payments should not be touched automatically at all.
+
+The system therefore evaluates multiple possible interventions and estimates the recovery probability of each one.
 
 ---
 
-# System Architecture
+# What the agent does
 
-```mermaid
-flowchart TB
-    UI[React Frontend] --> API[Express API]
+### 1. Detect revenue at risk
 
-    API --> INC[Incident Engine]
-    API --> REV[Revenue Attribution]
-    API --> OPT[Recovery Optimizer]
-    API --> POL[Policy Engine]
-    API --> EXE[Recovery Executor]
-    API --> BAT[Batch Recovery]
-    API --> AUD[Audit Logger]
+The system analyzes payment events and identifies:
 
-    OPT --> ML[Python ML Predictor]
-    ML --> RF[Random Forest Model]
+* failed payments
+* abandoned payments
+* payment-method degradation
+* bank-specific failure patterns
+* merchant-level failure concentration
+* recoverable revenue
 
-    INC --> DB[(MongoDB)]
-    REV --> DB
-    EXE --> DB
-    BAT --> DB
-    AUD --> DB
-```
+It also attributes revenue impact to detected incidents.
 
----
+### 2. Build recovery candidates
 
-# AI Recovery Workflow
+For each failed payment, the agent evaluates:
 
-Each failed payment can be evaluated against multiple recovery strategies.
+| Action             | Description                                     |
+| ------------------ | ----------------------------------------------- |
+| `RETRY_NOW`        | Attempt recovery immediately                    |
+| `DELAYED_RETRY`    | Attempt recovery after a delay                  |
+| `ALTERNATE_METHOD` | Attempt recovery through another payment method |
+| `NO_ACTION`        | Do not automatically intervene                  |
 
-```mermaid
-flowchart TD
+### 3. Predict recovery probability
 
-    A[Failed Payment]
+A Random Forest model estimates:
 
-    A --> B[Generate Recovery Candidates]
+> **P(payment recovered | payment context, recovery action)**
 
-    B --> C1[RETRY_NOW]
-    B --> C2[DELAYED_RETRY]
-    B --> C3[ALTERNATE_METHOD]
-    B --> C4[NO_ACTION]
+The model considers:
 
-    C1 --> D[ML Prediction]
-    C2 --> D
-    C3 --> D
-    C4 --> D
+* payment amount
+* payment method
+* bank
+* device
+* failure reason
+* previous success rate
+* previous failures
+* customer age
+* proposed recovery action
 
-    D --> E[Recovery Probability]
+### 4. Optimize the intervention
 
-    E --> F[Expected Recovery]
+The agent does not simply select the action with the highest probability.
 
-    F --> G[Expected Net Recovery]
-
-    G --> H[Select Highest-Value Eligible Action]
-
-    H --> I[Policy Validation]
-
-    I -->|Approved| J[Execute Recovery]
-    I -->|Blocked| K[Record Block Reason]
-
-    J --> L[Recovery Outcome]
-
-    L --> M[Recovered Revenue]
-
-    K --> N[Audit Trail]
-    M --> N
-```
-
-### Recovery strategies
-
-| Action | Description |
-|---|---|
-| `RETRY_NOW` | Attempt recovery immediately |
-| `DELAYED_RETRY` | Attempt recovery using a delayed retry strategy |
-| `ALTERNATE_METHOD` | Attempt recovery through an alternative payment method |
-| `NO_ACTION` | Do not perform automated recovery |
-
----
-
-# Recovery Optimization
-
-The optimizer compares candidate recovery strategies using the ML-generated probability of successful recovery.
-
-### Expected Recovery
+It estimates:
 
 ```text
 Expected Recovery
 = Payment Amount × Recovery Probability
 ```
 
-### Expected Net Recovery
+and:
 
 ```text
 Expected Net Recovery
 = Expected Recovery − Action Cost
 ```
 
-The system selects the highest expected net recovery among actions that satisfy the minimum confidence threshold.
+The highest-value eligible action is selected.
 
-This allows the system to distinguish between:
+---
+
+# Safety architecture
+
+## AI recommends. Policy decides. Executor acts.
+
+The ML model **never receives direct authority to execute a payment recovery action**.
+
+Every recommendation passes through a deterministic policy layer.
+
+### Current automatic recovery controls
+
+| Control                          |   Limit |
+| -------------------------------- | ------: |
+| Maximum automatic payment amount | ₹50,000 |
+| Minimum recovery probability     |     60% |
+| Maximum retries                  |       2 |
+| Maximum automatic attempts       |       2 |
+| Resolved incident                | Blocked |
+
+A recommendation can therefore be rejected even when the AI recommends an action.
+
+This creates a clear separation:
 
 ```text
-"Can this payment potentially be recovered?"
+AI Model
+   ↓
+Recommendation
+   ↓
+Deterministic Policy
+   ↓
+APPROVED / BLOCKED
+   ↓
+Executor
 ```
 
-and:
+This makes the system bounded and auditable rather than allowing an AI model to directly mutate payment state.
+
+---
+
+# Merchant Revenue Intelligence
+
+The system also operates at the **merchant level**, not only the individual-payment level.
+
+For each merchant it surfaces:
+
+* total transactions
+* failed transactions
+* failed revenue
+* failure rate
+* recoverable revenue
+* revenue risk score
+* dominant failure patterns
+* affected payments
+
+Merchants are prioritized by the amount of revenue that could potentially be recovered.
+
+This allows an operator to move from:
+
+> **"There are failed payments."**
+
+to:
+
+> **"Which merchant is currently exposed to the most recoverable revenue, and which payments should we act on?"**
+
+---
+
+# Autonomous Batch Recovery
+
+A merchant can trigger a bounded recovery batch instead of manually processing payments one at a time.
+
+The batch workflow:
 
 ```text
-"Which recovery action creates the best expected outcome?"
+Merchant
+   ↓
+Find eligible failed payments
+   ↓
+Generate recovery candidates
+   ↓
+ML recovery prediction
+   ↓
+Expected-value optimization
+   ↓
+Policy validation
+   ↓
+Approved ─────────→ Execute
+   │
+   └──────────────→ Block + record reason
+                         ↓
+                    Batch summary
 ```
 
----
+The batch response reports:
 
-# Recovery Policy
-
-AI recommendations are not executed automatically without validation.
-
-The policy engine evaluates hard recovery constraints before execution.
-
-```mermaid
-flowchart TD
-
-    A[AI Recommendation]
-
-    A --> B{Amount <= ₹50,000?}
-
-    B -->|No| X[BLOCK]
-    B -->|Yes| C{Retry Count < 2?}
-
-    C -->|No| X
-    C -->|Yes| D{Recovery Probability >= 60%?}
-
-    D -->|No| X
-    D -->|Yes| E{Incident Still Active?}
-
-    E -->|No| X
-    E -->|Yes| F{Automatic Attempts < 2?}
-
-    F -->|No| X
-    F -->|Yes| G[APPROVE]
-
-    G --> H[Execute Recovery]
-    X --> I[Record Policy Decision]
-```
-
-### Current policy controls
-
-| Control | Value |
-|---|---:|
-| Maximum automatic recovery amount | ₹50,000 |
-| Minimum recovery probability | 60% |
-| Maximum retries | 2 |
-| Maximum automatic attempts | 2 |
-
-These controls prevent unlimited or low-confidence automated recovery.
+* payments evaluated
+* approved actions
+* blocked actions
+* recovered payments
+* revenue evaluated
+* expected recovery
+* actual simulated recovery
+* recovery rate
+* per-payment decisions
+* policy reasons
 
 ---
 
-# Recovery Execution
+# Auditability
 
-Once an action is approved, the executor performs the bounded recovery workflow.
+Every recovery decision is recorded.
 
-The execution layer verifies that:
+The audit trail captures:
 
-- the payment exists,
-- the payment is currently recoverable,
-- automatic recovery attempts have not been exhausted,
-- the selected action is valid.
+* payment ID
+* merchant ID
+* incident ID
+* selected action
+* recovery probability
+* expected recovery
+* expected net recovery
+* policy decision
+* policy reasons
+* execution status
+* amount recovered
+* timestamp
 
-The resulting outcome is recorded as either a recovered payment or a failed recovery attempt.
-
-> **Prototype note:** recovery execution is simulated to demonstrate the complete decision → policy → execution → measurement workflow.
-
----
-
-# Batch Recovery
-
-The system can evaluate multiple failed payments for a merchant in a single workflow.
-
-```mermaid
-flowchart TD
-
-    A[Merchant]
-
-    A --> B[Find Failed / Abandoned Payments]
-
-    B --> C[Evaluate Recovery Candidates]
-
-    C --> D[AI Recommendation]
-
-    D --> E[Policy Decision]
-
-    E -->|Approved| F[Execute Recovery]
-    E -->|Blocked| G[Record Block Reason]
-
-    F --> H[Recovery Result]
-    G --> I[Batch Decision Record]
-
-    H --> I
-
-    I --> J[Batch Summary]
-
-    J --> K[Payments Evaluated]
-    J --> L[Approved]
-    J --> M[Blocked]
-    J --> N[Recovered]
-    J --> O[Expected Recovery]
-    J --> P[Actual Recovered Revenue]
-```
-
-The batch results provide an individual decision and outcome for each payment.
-
-### Batch information includes
-
-- Payment ID
-- Payment amount
-- AI-selected action
-- Recovery probability
-- Expected recovery
-- Expected net recovery
-- Policy decision
-- Policy reasons
-- Execution status
-- Recovered amount
-
----
-
-# Revenue Recovery Metrics
-
-The dashboard tracks the financial outcome of recovery workflows.
-
-Key metrics include:
-
-- Revenue at risk
-- Recoverable revenue
-- Expected recovery
-- Actual recovered revenue
-- Recovery count
-- Recovery rate
-- Recovery performance by action
-- Approved recovery actions
-- Blocked recovery actions
-
-The distinction between expected and actual recovery is intentional.
-
-For example:
+This makes it possible to trace:
 
 ```text
-Expected Recovery
-= ₹36,300
-
-Actual Recovery
-= ₹44,068
+AI Recommendation
+       ↓
+Policy Decision
+       ↓
+Execution
+       ↓
+Outcome
+       ↓
+Recovered Revenue
 ```
-
-Expected recovery represents the model's estimated value before execution.
-
-Actual recovery represents the outcome after execution.
-
----
-
-# Audit Trail
-
-Every recovery workflow produces an auditable sequence:
-
-```mermaid
-flowchart LR
-
-    A[AI Decision] --> B[Policy Check]
-    B --> C[Execution]
-    C --> D[Outcome]
-```
-
-The audit trail records important decision context such as:
-
-- Payment ID
-- AI-selected action
-- Recovery probability
-- Policy decision
-- Policy reasons
-- Retry / recovery attempt
-- Execution result
-- Amount recovered
-- Timestamp
-
-This allows a recovery decision to be traced from recommendation to final outcome.
 
 ---
 
 # Machine Learning
 
-The recovery prediction model is implemented in Python using a Random Forest classifier.
+The recovery model is implemented using:
 
-### Input features
+* Python
+* Scikit-learn
+* Random Forest
+* Joblib
 
-The model considers:
+The training pipeline uses **20,000 synthetic historical recovery records**.
 
-- Payment amount
-- Payment method
-- Bank
-- Device
-- Failure reason
-- Previous success rate
-- Previous failures
-- Customer age
-- Recovery action
+### Model evaluation
 
-### Candidate actions
+| Metric    |      Score |
+| --------- | ---------: |
+| Accuracy  | **69.23%** |
+| Precision | **63.82%** |
+| Recall    | **50.76%** |
+| ROC-AUC   | **0.7403** |
 
-```text
-RETRY_NOW
-DELAYED_RETRY
-ALTERNATE_METHOD
-NO_ACTION
-```
-
-The model returns a recovery probability for a given payment and action combination.
-
-The backend then uses those predictions during recovery optimization.
+The model is used as a **decision-support component**. Its output is always subject to the deterministic recovery policy.
 
 ---
 
-# Project Structure
+# Prototype execution
+
+The recovery executor is currently simulated.
+
+This allows the complete workflow to be demonstrated safely:
+
+```text
+Recommendation
+      ↓
+Policy
+      ↓
+Execution
+      ↓
+Recovery outcome
+      ↓
+Revenue measurement
+```
+
+The prototype does **not** claim that simulated recoveries represent real Razorpay production recovery.
+
+A production integration would replace the executor with the appropriate Razorpay recovery/payment APIs while retaining the same decision, policy, and audit architecture.
+
+---
+
+# Technology
+
+### Frontend
+
+* React
+* TypeScript
+* Vite
+* Lucide React
+
+### Backend
+
+* Node.js
+* Express
+* MongoDB
+* Mongoose
+
+### Machine Learning
+
+* Python
+* Scikit-learn
+* Random Forest
+* Joblib
+
+---
+
+# Architecture
+
+```text
+                    ┌─────────────────────┐
+                    │    React Dashboard  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     Express API     │
+                    └──────────┬──────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+              ▼                ▼                ▼
+       Incident Engine   Revenue Intelligence   Batch Recovery
+              │                │                │
+              └────────────────┼────────────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Recovery Optimizer  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   Python ML Model   │
+                    │   Random Forest     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   Policy Engine     │
+                    │  Hard Safety Gates  │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    ▼                     ▼
+                APPROVED                BLOCKED
+                    │                     │
+                    ▼                     ▼
+               Executor              Audit Log
+                    │
+                    ▼
+             Recovery Outcome
+                    │
+                    ▼
+             Revenue Measurement
+```
+
+---
+
+# Project structure
 
 ```text
 ai-revenue-recovery/
@@ -405,23 +400,16 @@ ai-revenue-recovery/
 │   │   ├── recoveryWorkflow.js
 │   │   └── revenueAttribution.js
 │   │
-│   ├── utils/
-│   │   ├── incidentSimulator.js
-│   │   └── seedData.js
-│   │
 │   ├── server.js
 │   ├── seed.js
-│   └── clearIncidents.js
+│   ├── clearIncidents.js
+│   └── benchmarkRecovery.js
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── App.tsx
 │   │   ├── main.tsx
-│   │   ├── style.css
-│   │   ├── audit-trail.css
-│   │   └── batch-results.css
-│   │
-│   ├── public/
+│   │   └── style.css
 │   └── package.json
 │
 ├── ml/
@@ -441,34 +429,9 @@ ai-revenue-recovery/
 
 ---
 
-# Technology Stack
+# Running locally
 
-### Frontend
-
-- React
-- TypeScript
-- Vite
-- Lucide React
-
-### Backend
-
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-
-### Machine Learning
-
-- Python
-- Scikit-learn
-- Random Forest
-- Joblib
-
----
-
-# Running Locally
-
-## 1. Clone the repository
+## 1. Clone
 
 ```bash
 git clone https://github.com/harshit180704/ai-revenue-recovery.git
@@ -492,20 +455,20 @@ MONGO_URI=your_mongodb_connection_string
 
 Do not commit the real `.env` file.
 
-## 3. Install backend dependencies
+## 3. Install backend
 
 ```bash
 cd backend
 npm install
 ```
 
-## 4. Start the backend
+## 4. Start backend
 
 ```bash
 npm start
 ```
 
-## 5. Install frontend dependencies
+## 5. Install frontend
 
 Open another terminal:
 
@@ -514,71 +477,120 @@ cd frontend
 npm install
 ```
 
-## 6. Start the frontend
+## 6. Start frontend
 
 ```bash
 npm run dev
 ```
 
-Open the local Vite URL shown in the terminal.
+Open the Vite URL shown in the terminal.
 
 ---
 
-# Demo Flow
+# Recommended demo
 
-A recommended demonstration sequence:
+The strongest demo sequence is:
 
 ```text
 Dashboard
-   ↓
-Incidents
-   ↓
-AI Recovery Center
-   ↓
-Select Failed Payment
-   ↓
+    ↓
+Revenue at Risk
+    ↓
+Merchant Intelligence
+    ↓
+Select High-Risk Merchant
+    ↓
+View Failed Payments
+    ↓
+Select Payment
+    ↓
 Generate AI Recommendation
-   ↓
-Review Expected Recovery
-   ↓
+    ↓
+Compare Recovery Actions
+    ↓
+Expected Recovery
+    ↓
 Policy Check
-   ↓
+    ↓
+APPROVED / BLOCKED
+    ↓
 Execute Recovery
-   ↓
-View Recovered Revenue
-   ↓
+    ↓
+Recovery Outcome
+    ↓
 Run Batch Recovery
-   ↓
-Review Batch Decisions
-   ↓
+    ↓
+Batch Summary
+    ↓
 Audit Trail
 ```
 
----
+### Demo the safety gate
 
-# Key Design Principle
+A particularly useful demonstration is to show both paths:
 
-The system is designed around a simple idea:
+**Approved**
 
 ```text
-Detect
-  ↓
-Predict
-  ↓
-Optimize
-  ↓
-Control
-  ↓
+AI Recommendation
+      ↓
+Recovery probability ≥ 60%
+      ↓
+Policy APPROVED
+      ↓
 Execute
-  ↓
-Measure
-  ↓
-Audit
 ```
+
+**Blocked**
+
+```text
+AI Recommendation
+      ↓
+Recovery probability < 60%
+      ↓
+Policy BLOCKED
+      ↓
+No execution
+      ↓
+Reason recorded in audit trail
+```
+
+This demonstrates that the AI is not given unrestricted execution authority.
+
+---
+
+# Key design principle
+
+The system is built around one principle:
+
+> **AI recommends. Policy decides. Executor acts.**
 
 The objective is not to retry every failed transaction.
 
-The objective is to make **bounded, explainable, value-driven recovery decisions** and measure what happens after those decisions are executed.
+The objective is to make **bounded, explainable, value-driven recovery decisions**, execute only approved interventions, and maintain a complete record of what happened.
 
 ---
+
+# Prototype limitations
+
+This repository is a hackathon prototype.
+
+* Payment recovery execution is simulated.
+* Training data is synthetic.
+* Recovery probabilities are not calibrated against production Razorpay outcomes.
+* Production deployment would require integration with real payment/recovery APIs and appropriate compliance controls.
+* Benchmark simulation artifacts are retained in the repository but are not presented as real-world recovered revenue.
+
+The architecture is designed so that the simulated components can be replaced with production integrations without changing the core decision/policy/audit flow.
+
+---
+
+# Built for
+
+**Razorpay Buildathon 2026 — Track 3: AI Revenue Recovery**
+
+**Core objective:**
+
+> Detect revenue at risk → determine the right intervention → execute a bounded recovery workflow → measure the outcome → preserve an audit trail.
+
 
